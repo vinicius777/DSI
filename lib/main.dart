@@ -29,9 +29,7 @@ class _RandomWordsState extends State<RandomWords> {
       appBar: AppBar(
         title: Text('Startup Name Generator'),
         centerTitle: true,
-        actions: [
-          IconButton(icon: Icon(Icons.list), onPressed: _pushSaved)
-        ],
+        actions: [IconButton(icon: Icon(Icons.list), onPressed: _pushSaved)],
       ),
       body: _buildSuggestions(),
     );
@@ -45,14 +43,25 @@ class _RandomWordsState extends State<RandomWords> {
           return Divider();
         }
         final int index = i ~/ 2;
+        final item = _suggestions[index];
         if (index >= _suggestions.length) {
           _suggestions.addAll(generateWordPairs().take(10));
         }
-        return _buildRow(_suggestions[index]);
+        return Dismissible(
+          key: Key(_suggestions[index].toString()),
+          onDismissed: (direction) {
+            setState(() {
+              _suggestions.removeAt(index);
+            });
+            ScaffoldMessenger.of(_context)
+                .showSnackBar(SnackBar(content: Text('$item removido!')));
+          },
+          background: Container(color: Colors.redAccent),
+          child: _buildRow(_suggestions[index]),
+        ); //_buildRow(_suggestions[index]);
       },
     );
   }
-
 
   Widget _buildRow(WordPair pair) {
     final alreadySaved = _saved.contains(pair);
@@ -65,11 +74,11 @@ class _RandomWordsState extends State<RandomWords> {
         alreadySaved ? Icons.favorite : Icons.favorite_border,
         color: alreadySaved ? Colors.red : null,
       ),
-      onTap: (){
+      onTap: () {
         setState(() {
-          if (alreadySaved){
+          if (alreadySaved) {
             _saved.remove(pair);
-          } else{
+          } else {
             _saved.add(pair);
           }
         });
@@ -77,22 +86,28 @@ class _RandomWordsState extends State<RandomWords> {
     );
   }
 
+  void _pushSaved() {
+    Navigator.of(context)
+        .push(MaterialPageRoute<void>(builder: (BuildContext context) {
+      final tiles = _saved.map((WordPair pair) {
+        return ListTile(
+          title: Text(
+            pair.asPascalCase,
+            style: _biggerFont,
+          ),
+        );
+      });
+      final divided = ListTile.divideTiles(
+        context: context,
+        tiles: tiles,
+      ).toList();
 
-  void _pushSaved(){
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) {
-          final  tiles = _saved.map((WordPair pair) {
-            return ListTile(
-              title: Text(pair.asPascalCase,
-              style: _biggerFont,
-              ),
-            );
-          }
-          );
-        }
-      )
-    );
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Saved Suggestions'),
+        ),
+        body: ListView(children: divided),
+      );
+    }));
   }
-
 }
