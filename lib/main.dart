@@ -22,9 +22,11 @@ class RandomWords extends StatefulWidget {
 }
 
 class _RandomWordsState extends State<RandomWords> {
-  final _suggestions = <WordPair>[];
+  final _suggestions = [];
   final _saved = <WordPair>{};
   final _biggerFont = const TextStyle(fontSize: 18);
+  final changWord = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -40,18 +42,25 @@ class _RandomWordsState extends State<RandomWords> {
 
   Widget _buildSuggestions() {
     return ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemBuilder: (BuildContext _context, int i) {
-          if (i.isOdd) {
-            return Divider();
-          }
-          final int index = i ~/ 2;
-          if (index >= _suggestions.length) {
-            _suggestions.addAll(generateWordPairs().take(10));
-          }
-          return _buildRow(_suggestions[index]);
-        },
-      );
+      padding: const EdgeInsets.all(16),
+      itemBuilder: (BuildContext _context, int i) {
+        if (i.isOdd) {
+          return Divider();
+        }
+        final int index = i ~/ 2;
+        if (index >= _suggestions.length) {
+          _suggestions.addAll(generateWordPairs().take(10));
+        }
+        return Dismissible(child: _buildRow(_suggestions[index]),
+            key: Key(_suggestions[index].toString()),
+            onDismissed: (direction){
+              setState(() {
+                _suggestions.removeAt(index);
+              });
+            },
+            background: Container(color: Colors.red));
+      },
+    );
   }
 
   Widget _buildRow(WordPair pair) {
@@ -61,9 +70,18 @@ class _RandomWordsState extends State<RandomWords> {
         pair.asPascalCase,
         style: _biggerFont,
       ),
-      trailing: Icon(
-        alreadySaved ? Icons.favorite : Icons.favorite_border,
+      trailing: IconButton(
+        icon: Icon(alreadySaved ? Icons.favorite : Icons.favorite_border),
         color: alreadySaved ? Colors.red : null,
+        onPressed: (){
+          setState(() {
+            if (alreadySaved){
+              _saved.remove(pair);
+            } else {
+              _saved.add(pair);
+            }
+          });
+        },
       ),
       onTap: () {
         setState(() {
@@ -81,7 +99,7 @@ class _RandomWordsState extends State<RandomWords> {
     Navigator.of(context)
         .push(MaterialPageRoute<void>(builder: (BuildContext context) {
       final tiles = _saved.map(
-        (WordPair pair) {
+            (WordPair pair) {
           return ListTile(
             title: Text(
               pair.asPascalCase,
