@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "37792872518",
+    "project_id": "bandnamesurvey-dfc45",
+    "storage_bucket": "bandnamesurvey-dfc45.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:37792872518:android:ee9d459da21c2253c8b247",
+        "android_client_info": {
+          "package_name": "com.example.dsi_contador"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "37792872518-qk1o9g69a3f6vn1cs62i4v6u1rs7md6a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcWJavUec6KjA2RQ2waL2IISAUbyEhOio"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "37792872518-qk1o9g69a3f6vn1cs62i4v6u1rs7md6a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
