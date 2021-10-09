@@ -8,12 +8,14 @@ void main() {
   runApp(InitialFirebase());
 }
 
+
 class InitialFirebase extends StatefulWidget {
-  const InitialFirebase({key}) : super(key: key);
+  InitialFirebase({Key key}) : super(key: key);
 
   @override
   _InitialFirebaseState createState() => _InitialFirebaseState();
 }
+
 
 class _InitialFirebaseState extends State<InitialFirebase> {
   final Future<FirebaseApp> _initialization = Firebase.initializeApp();
@@ -56,11 +58,97 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: "Band Name Survey",
         theme: ThemeData(primarySwatch: Colors.green),
-        home: const MyHomePage(title: 'Possible Band Names'));
+        home:  const MyHomePage(title: 'Possible Band Names'));
   }
 }
 
-class MyHomePage extends StatelessWidget {
+
+class MyHomePage extends StatefulWidget {
+  final String title;
+
+  const MyHomePage({Key key, this.title}) : super(key: key);
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  CollectionReference<Map<String,dynamic>> get bandnames =>
+      FirebaseFirestore.instance.collection('bandnames');
+
+  DocumentReference<Map<String, dynamic>> get docRef =>
+      bandnames.doc('DYRmRoyx3CuGpT0bo98J');
+
+  void _increment() async{
+    DocumentSnapshot docSnap = await docRef.get();
+    int counter = docSnap.get('votes');
+    counter++;
+    docRef.set(
+      {'votes': counter},
+      SetOptions(merge: true),
+    );
+    setState(() {});
+  }
+  @override
+  Widget build(BuildContext context){
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+        centerTitle: true,
+      ),
+      body: _buildBody(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _increment,
+        child: Icon(Icons.add),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+
+  Widget _buildBody(){
+    return FutureBuilder(
+      future: docRef.get(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          DocumentSnapshot<Map<String, dynamic>> docSnap = snapshot
+              .data as DocumentSnapshot<Map<String, dynamic>>;
+          int counter = docSnap.get('votes');
+          String name = docSnap.get('name');
+          return _buildBodyOk(counter, name);
+        }
+        return _Loading();
+      }
+    );
+  }
+  Center _buildBodyOk(int counter, String name){
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            '$name :',
+            style: TextStyle(
+              fontSize: 20.0,
+              color: Colors.red
+            ),
+          ),
+          Text(
+            '$counter',
+            style: TextStyle(
+              fontSize: 25,
+              color: Colors.greenAccent
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+}
+
+
+
+/*class MyHomePage extends StatelessWidget {
   const MyHomePage({Key key, this.title}) : super(key: key);
   final String title;
 
@@ -113,13 +201,13 @@ class MyHomePage extends StatelessWidget {
           }),
     );
   }
-}
+} */
 
 Widget _Loading() {
   return Center(
     child: Wrap(
       alignment: WrapAlignment.center,
-      children: const [
+      children: [
         CircularProgressIndicator(),
         SizedBox(width: 10),
         Text('Loading...', style: TextStyle(fontSize: 20.0)),
